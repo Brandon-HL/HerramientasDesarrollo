@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Curso de Inteligencia Emocional</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Curso de Inteligencia Emocional</h1>
+    <p>Aprende a gestionar tus emociones y mejorar tus relaciones personales y profesionales.</p>
+    <a href="#registro" class="btn">Inscríbete Ahora</a>
+  </header>
+
+  <section id="beneficios">
+    <h2>¿Qué aprenderás?</h2>
+    <ul>
+      <li>✅ Autoconciencia emocional</li>
+      <li>✅ Manejo de emociones</li>
+      <li>✅ Empatía y habilidades sociales</li>
+      <li>✅ Inteligencia emocional aplicada al trabajo</li>
+    </ul>
+  </section>
+
+  <section id="registro">
+    <h2>Regístrate al Curso</h2>
+    <form id="form" action="guardar.php" method="POST">
+      <label>Nombre completo:</label>
+      <input type="text" name="nombre" required><br>
+
+      <label>Correo electrónico:</label>
+      <input type="email" name="correo" required><br>
+
+      <label>Teléfono:</label>
+      <input type="text" name="telefono" required><br>
+
+      <label>Mensaje (opcional):</label>
+      <textarea name="mensaje"></textarea><br>
+
+      <button type="submit">Inscribirme</button>
+    </form>
+    <p id="msg"></p>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Curso de Inteligencia Emocional | Todos los derechos reservados</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
