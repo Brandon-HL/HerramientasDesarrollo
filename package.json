@@ -1,0 +1,26 @@
+{
+  "name": "herramientasdesarrollo-2",
+  "version": "1.0.0",
+  "description": "Estructura:\r  Backend:\r  server.js \r  Node.js \r  MySQL",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Brandon-HL/HerramientasDesarrollo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Brandon-HL/HerramientasDesarrollo/issues"
+  },
+  "homepage": "https://github.com/Brandon-HL/HerramientasDesarrollo#readme",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "mysql2": "^3.15.0"
+  }
+}

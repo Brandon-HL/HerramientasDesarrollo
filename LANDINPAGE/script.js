@@ -1,67 +1,49 @@
-(() => {
-  const form = document.getElementById('form');
-  if (!form) return;
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("formulario");
+  const msg = document.getElementById("msg");
 
-  const nombre = document.getElementById('nombre');
-  const correo = document.getElementById('correo');
-  const telefono = document.getElementById('telefono');
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  const errNombre = document.getElementById('error-nombre');
-  const errCorreo = document.getElementById('error-correo');
-  const errTelefono = document.getElementById('error-telefono');
+   
+    const data = {
+      nombre: document.getElementById("nombre").value.trim(),
+      correo: document.getElementById("correo").value.trim(),
+      telefono: document.getElementById("telefono").value.trim(),
+      mensaje: document.getElementById("mensaje").value.trim(),
+    };
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-  const phoneRegex = /^[0-9\s+()\-]{6,}$/;
 
-  const setError = (input, container, message) => {
-    container.textContent = message;
-    input.classList.toggle('is-invalid', Boolean(message));
-    input.classList.toggle('is-valid', !message);
-  };
-
-  const clearAll = () => {
-    setError(nombre, errNombre, '');
-    setError(correo, errCorreo, '');
-    setError(telefono, errTelefono, '');
-    document.getElementById('msg').textContent = '';
-  };
-
-  const validate = () => {
-    let valid = true;
-    clearAll();
-
-    const vNombre = nombre.value.trim();
-    if (vNombre.length < 3) {
-      setError(nombre, errNombre, 'Error');
-      valid = false;
+    if (!data.nombre || !data.correo) {
+      msg.textContent = "⚠ Por favor completa los campos obligatorios.";
+      msg.style.color = "red";
+      return;
     }
 
-    const vCorreo = correo.value.trim();
-    if (!emailRegex.test(vCorreo)) {
-      setError(correo, errCorreo, 'Ingresa un correo válido.');
-      valid = false;
-    }
+    try {
+      
+      const response = await fetch("http://localhost:3000/api/inscripcion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
-    const vTelefono = telefono.value.trim();
-    if (!phoneRegex.test(vTelefono)) {
-      setError(telefono, errTelefono, 'Ingresa un teléfono válido.');
-      valid = false;
-    }
+      const result = await response.text();
 
-    return valid;
-  };
-
-  ['input', 'blur'].forEach(evt => {
-    nombre.addEventListener(evt, () => validate());
-    correo.addEventListener(evt, () => validate());
-    telefono.addEventListener(evt, () => validate());
-  });
-
-  form.addEventListener('submit', (e) => {
-    if (!validate()) {
-      e.preventDefault();
-      document.getElementById('msg').textContent = 'Revisa los campos marcados en rojo.';
+      if (response.ok) {
+        msg.textContent = result;
+        msg.style.color = "green";
+        form.reset();
+      } else {
+        msg.textContent = "❌ Error: " + result;
+        msg.style.color = "red";
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      msg.textContent = "❌ No se pudo conectar al servidor.";
+      msg.style.color = "red";
     }
   });
-})();
-  
+});
+
+

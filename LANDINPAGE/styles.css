@@ -1,54 +1,118 @@
 :root {
-  --primary: #6f6cd9; /* tono lavanda-azulado como el diseño */
+  --primary: #6f6cd9;
   --primary-dark: #5b58c1;
   --bg: #f8f7fb;
+  --dark: #1a1d29;
 }
 
-body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: var(--bg); }
 
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  margin: 0;
+}
+
+
+.main-header {
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+.main-header nav a {
+  color: #555;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color .3s;
+}
+.main-header nav a:hover {
+  color: var(--primary);
+}
 .logo {
-  width: 42px; height: 42px; border-radius: 12px;
+  width: 42px; height: 42px;
+  border-radius: 12px;
   background: linear-gradient(135deg, var(--primary), #8a86ff);
+  color: #fff;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Sección hero con fondo tipo "glass" */
+
 .hero-section {
-  background: radial-gradient(1200px 400px at 60% -10%, rgba(255,255,255,0.08), transparent),
-              linear-gradient(180deg, #22263a 0%, #2d3352 60%, #2f3361 100%);
+  background: linear-gradient(160deg, #2d3352 0%, #2f3361 100%);
+  color: #fff;
 }
+.text-accent {
+  color: #cfcdf9;
+  font-weight: 600;
+}
+
 
 .glass-card {
   border-radius: 16px;
-  border: 1px solid rgba(255,255,255,0.25);
-  background: rgba(255,255,255,0.08);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.08);
   backdrop-filter: blur(6px);
+  transition: transform .3s ease;
+}
+.glass-card:hover {
+  transform: translateY(-4px);
 }
 
-.form-card { border: 1px solid rgba(0,0,0,.06); }
-.form-card .form-control { padding: 0.85rem 1rem; border-radius: 12px; }
-.form-card .btn-primary { background-color: var(--primary); border-color: var(--primary); }
-.form-card .btn-primary:hover { background-color: var(--primary-dark); border-color: var(--primary-dark); }
 
-/* Tarjetas de características */
-.feature-card {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+.form-card {
   border-radius: 16px;
-  backdrop-filter: blur(10px);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: #fff;
+}
+.input-group-text {
+  background: #f1f0ff;
+  border: 1px solid #ddd;
+  border-right: 0;
+  border-radius: 10px 0 0 10px;
+}
+.form-card .form-control {
+  border-radius: 0 10px 10px 0;
+  border: 1px solid #ddd;
+  padding: 0.9rem 1rem;
+  font-size: 0.95rem;
+}
+.form-card .form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 6px rgba(111, 108, 217, 0.3);
+}
+.form-card .btn-primary {
+  background: var(--primary);
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: background .3s;
+}
+.form-card .btn-primary:hover {
+  background: var(--primary-dark);
 }
 
-.feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-}
 
-.feature-icon {
-  font-size: 2.5rem;
+.section-alt {
+  background: linear-gradient(135deg, var(--dark) 0%, #2f3361 100%);
+}
+.feature-card {
+  border-radius: 16px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.15);
   text-align: center;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  color: white;
+  font-weight: 600;
+  transition: transform .3s, box-shadow .3s;
+}
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 35px rgba(0,0,0,.2);
 }
 
-/* Utilidades */
-.link-secondary { color: #9aa0ae !important; }
+
+.footer {
+  background: #2d3352;
+}
