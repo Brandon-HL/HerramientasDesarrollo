@@ -1,12 +1,12 @@
 # LandingPage - Mente Sana 
 
 Estructura:
-- backend:
+ Backend:
  server.js 
  Node.js 
  MySQL
 
-- frontend
+Frontend
  index.html 
  style.css
  script.js
