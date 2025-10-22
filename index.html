@@ -4,142 +4,608 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Curso de Inteligencia Emocional — Mente Sana</title>
-  
- 
+
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
- 
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
-  
-  <link rel="stylesheet" href="css/styles.css" />
-
-  
+  <!-- AOS -->
   <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  
-  <header class="main-header bg-white shadow-sm">
-    <div class="container d-flex justify-content-between align-items-center py-3">
-      <div class="d-flex align-items-center gap-2">
+
+  <!-- HEADER -->
+  <header class="main-header">
+    <div class="container d-flex align-items-center justify-content-between py-3">
+      <div class="d-flex align-items-center gap-3">
         <div class="logo">IE</div>
-        <div>
-          <div class="fw-bold">Mente Sana</div>
+        <div class="ms-1">
+          <div class="fw-bold site-title">Mente Sana</div>
           <small class="text-muted">Formación y desarrollo</small>
         </div>
       </div>
-      <nav class="d-none d-md-flex gap-4">
-        <a href="#sobre" class="text-decoration-none text-dark">Sobre el curso</a>
-        <a href="#conocenos" class="text-decoration-none text-dark">Conócenos</a>
-        <a href="#contacto" class="btn btn-sm btn-primary">Contacto</a>
-      </nav>
+
+      <div class="d-flex align-items-center gap-3">
+        <nav class="nav d-none d-md-flex gap-3">
+          <a href="#sobre" class="nav-link">Sobre</a>
+          <a href="#cursos" class="nav-link">Cursos</a>
+          <a href="#beneficios" class="nav-link">Beneficios</a>
+          <a href="#precios" class="nav-link">Precios</a>
+          <a href="#testimonios" class="nav-link">Testimonios</a>
+          <a href="#dashboard" class="nav-link">Dashboard</a>
+          <a href="#contacto" class="nav-link">Contacto</a>
+        </nav>
+
+        <!-- Acciones: iniciar sesión destacado y crear cuenta -->
+        <button id="btnOpenLogin" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M15 3H6a2 2 0 0 0-2 2v14" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10 17l5-5-5-5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          Iniciar sesión
+        </button>
+
+        <button id="btnOpenRegister" class="btn btn-primary btn-sm ms-2">Crear cuenta</button>
+
+        <!-- mobile toggle -->
+        <button class="btn btn-link d-md-none" id="mobileMenuBtn" aria-label="Abrir menú">☰</button>
+      </div>
+    </div>
+
+    <!-- mobile nav -->
+    <div id="mobileNav" class="mobile-nav d-none">
+      <div class="container d-flex flex-column py-2">
+        <a href="#sobre" class="py-2">Sobre</a>
+        <a href="#cursos" class="py-2">Cursos</a>
+        <a href="#beneficios" class="py-2">Beneficios</a>
+        <a href="#precios" class="py-2">Precios</a>
+        <a href="#testimonios" class="py-2">Testimonios</a>
+        <a href="#dashboard" class="py-2">Dashboard</a>
+        <a href="#contacto" class="py-2">Contacto</a>
+      </div>
     </div>
   </header>
 
-  
-  <section class="hero-section py-5">
-    <div class="container">
-      <div class="row align-items-start g-5">
-        
-        
+  <!-- HERO -->
+  <section class="hero-section">
+    <div class="container py-5">
+      <div class="row g-5 align-items-start">
         <div class="col-12 col-lg-7" data-aos="fade-right">
           <div class="text-accent mb-2">Cómo trabajamos</div>
-          <h1 class="display-5 text-white fw-bold">Curso de Inteligencia Emocional</h1>
-          <p class="lead text-white-50 mb-4" id="sobre">
-            Desarrolla autoconciencia, regulación emocional y comunicación efectiva con enfoques basados en evidencia.
+          <h1 class="display-5 fw-bold text-white" id="sobre">Curso de Inteligencia Emocional</h1>
+          <p class="lead text-white-50 mb-4">
+            Desarrolla autoconciencia, regulación emocional y comunicación efectiva con ejercicios prácticos y apoyo profesional.
           </p>
 
           <div class="row g-3" id="temas">
             <div class="col-12 col-md-4">
-              <div class="glass-card p-3 h-100">
-                <div class="fw-semibold text-white">Cognitivo Conductual</div>
-                <small class="text-white-50">Reencuadre de patrones</small>
+              <div class="work-card p-4 h-100" data-aos="zoom-in">
+                <div class="work-title">Cognitivo Conductual</div>
+                <div class="work-sub">Reencuadre de patrones</div>
               </div>
             </div>
+
             <div class="col-12 col-md-4">
-              <div class="glass-card p-3 h-100">
-                <div class="fw-semibold text-white">Mindfulness</div>
-                <small class="text-white-50">Presencia y equilibrio</small>
+              <div class="work-card p-4 h-100" data-aos="zoom-in" data-aos-delay="80">
+                <div class="work-title">Mindfulness</div>
+                <div class="work-sub">Presencia y equilibrio</div>
               </div>
             </div>
+
             <div class="col-12 col-md-4">
-              <div class="glass-card p-3 h-100">
-                <div class="fw-semibold text-white">Psicodinámico</div>
-                <small class="text-white-50">Explora tus influencias</small>
+              <div class="work-card p-4 h-100" data-aos="zoom-in" data-aos-delay="160">
+                <div class="work-title">Psicodinámico</div>
+                <div class="work-sub">Explora tus influencias</div>
               </div>
             </div>
           </div>
 
+          <!-- hero image (tu imagen) -->
           <div class="mt-4">
-            <img src="resources/img/imagen1.jpg" 
-                 alt="Profesional de salud mental" 
-                 class="img-fluid rounded-3 shadow">
+            <img src="resources/img/imagen1.jpg" alt="Imagen principal" class="img-fluid rounded-3 shadow hero-main-img">
           </div>
         </div>
 
-        
-        <div class="col-12 col-lg-5" id="contacto" data-aos="fade-left">
-          <div class="form-card p-4 bg-white rounded-4 shadow">
-            <h2 class="h4 text-center fw-bold mb-2">Escríbenos</h2>
-            <p class="text-center text-muted mb-4">Completa el formulario y te contactaremos pronto</p>
-            
-          
-            <form id="formulario" novalidate>
-              <div class="mb-3 input-group">
-                <span class="input-group-text">👤</span>
-                <input type="text" class="form-control" id="nombre" name="nombre" required placeholder="Nombre completo">
+        <!-- FORM profesional -->
+        <div class="col-12 col-lg-5" data-aos="fade-left" id="contacto">
+          <div class="form-card p-4 rounded-4 shadow-lg">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h2 class="h5 fw-bold mb-0">Inscríbete / Escríbenos</h2>
+                <small class="text-muted">Cupos limitados — reserva tu lugar</small>
               </div>
-              <div class="mb-3 input-group">
-                <span class="input-group-text">📧</span>
-                <input type="email" class="form-control" id="correo" name="correo" required placeholder="Correo electrónico">
-              </div>
-              <div class="mb-3 input-group">
-                <span class="input-group-text">📞</span>
-                <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="Teléfono">
-              </div>
+              <div class="badge bg-secondary text-white">Nuevo</div>
+            </div>
+
+            <form id="formulario" novalidate class="professional-form">
               <div class="mb-3">
-                <textarea class="form-control" id="mensaje" name="mensaje" rows="4" placeholder="Tu mensaje..."></textarea>
+                <label for="nombre" class="form-label small">Nombre completo *</label>
+                <input type="text" id="nombre" class="form-control form-control-lg" required>
               </div>
-              <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">Enviar mensaje</button>
+
+              <div class="row g-2">
+                <div class="col-12 col-md-6 mb-3">
+                  <label for="correo" class="form-label small">Correo *</label>
+                  <input type="email" id="correo" class="form-control form-control-lg" required>
+                </div>
+                <div class="col-12 col-md-6 mb-3">
+                  <label for="telefono" class="form-label small">Teléfono</label>
+                  <input type="tel" id="telefono" class="form-control form-control-lg">
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="mensaje" class="form-label small">Mensaje</label>
+                <textarea id="mensaje" class="form-control" rows="3"></textarea>
+              </div>
+
+              <div class="d-grid mt-2">
+                <button type="submit" class="btn btn-primary btn-lg d-flex justify-content-center align-items-center gap-2">
+                  <span id="btnSpin" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                  <span id="btnText">Enviar solicitud</span>
+                </button>
+              </div>
             </form>
 
-        
             <div id="msg" class="mt-3 text-center fw-semibold"></div>
+          </div>
+
+          <!-- Carrusel profesional -->
+          <div class="mt-4">
+            <div id="proCarousel" class="carousel slide" data-bs-ride="carousel">
+              <div class="carousel-inner">
+                <div class="carousel-item active">
+                  <div class="carousel-pro-card p-3 d-flex gap-3 align-items-center">
+                    <div class="carousel-pro-icon">🧭</div>
+                    <div>
+                      <div class="fw-bold">Plan personalizado</div>
+                      <div class="small text-muted">Evaluación inicial y ruta de aprendizaje adaptada.</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="carousel-item">
+                  <div class="carousel-pro-card p-3 d-flex gap-3 align-items-center">
+                    <div class="carousel-pro-icon">👩‍🏫</div>
+                    <div>
+                      <div class="fw-bold">Sesiones en vivo</div>
+                      <div class="small text-muted">Interacción directa con instructores.</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="carousel-item">
+                  <div class="carousel-pro-card p-3 d-flex gap-3 align-items-center">
+                    <div class="carousel-pro-icon">📚</div>
+                    <div>
+                      <div class="fw-bold">Material descargable</div>
+                      <div class="small text-muted">Guías, ejercicios y hojas de trabajo.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button class="carousel-control-prev" type="button" data-bs-target="#proCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#proCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFICIOS (6) -->
+  <section id="beneficios" class="py-5">
+    <div class="container" data-aos="fade-up">
+      <h2 class="text-center fw-bold mb-5">¿Por qué elegirnos?</h2>
+      <div class="row g-4">
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="benefit-card p-4 h-100">
+            <div class="d-flex gap-3">
+              <div class="benefit-icon">🧘‍♀️</div>
+              <div>
+                <h5 class="mb-1">Reducción del estrés</h5>
+                <p class="small text-muted mb-0">Técnicas prácticas para reducir la reactividad emocional.</p>
+              </div>
+            </div>
           </div>
         </div>
 
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="benefit-card p-4 h-100">
+            <div class="d-flex gap-3">
+              <div class="benefit-icon">🤝</div>
+              <div>
+                <h5 class="mb-1">Relaciones más sanas</h5>
+                <p class="small text-muted mb-0">Mejora la comunicación y escucha.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="benefit-card p-4 h-100">
+            <div class="d-flex gap-3">
+              <div class="benefit-icon">🧠</div>
+              <div>
+                <h5 class="mb-1">Decisiones más claras</h5>
+                <p class="small text-muted mb-0">Herramientas para pensar con calma bajo presión.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="benefit-card p-4 h-100">
+            <div class="d-flex gap-3">
+              <div class="benefit-icon">📜</div>
+              <div>
+                <h5 class="mb-1">Certificación</h5>
+                <p class="small text-muted mb-0">Certificado digital verificable al completar.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="benefit-card p-4 h-100">
+            <div class="d-flex gap-3">
+              <div class="benefit-icon">🌍</div>
+              <div>
+                <h5 class="mb-1">Profesores internacionales</h5>
+                <p class="small text-muted mb-0">Expertos con experiencia clínica y docente.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="benefit-card p-4 h-100">
+            <div class="d-flex gap-3">
+              <div class="benefit-icon">⚡</div>
+              <div>
+                <h5 class="mb-1">Aplicación práctica</h5>
+                <p class="small text-muted mb-0">Ejercicios para aplicar desde la primera clase.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-
-  <section id="conocenos" class="py-5 section-alt">
+  <!-- CURSOS DESTACADOS -->
+  <section id="cursos" class="py-5">
     <div class="container" data-aos="fade-up">
-      <h2 class="text-center fw-bold mb-5 text-white">¿Por qué elegirnos?</h2>
+      <h2 class="text-center fw-bold mb-4">Cursos destacados</h2>
       <div class="row g-4">
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="feature-card h-100 p-4">👥 <h5>+500 alumnos confiaron</h5></div>
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="course-card position-relative overflow-hidden">
+            <img src="resources/img/curso IE.jpg" alt="Inteligencia Emocional" class="img-fluid w-100">
+            <div class="course-body p-3">
+              <h5 class="mb-1">Inteligencia Emocional</h5>
+              <p class="small text-muted">Herramientas prácticas para gestionar emociones.</p>
+              <a class="stretched-link btn btn-sm btn-outline-primary mt-2">Ver más</a>
+            </div>
+            <div class="course-overlay"></div>
+          </div>
         </div>
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="feature-card h-100 p-4">⚡ <h5>Rápida aplicación práctica</h5></div>
+
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="course-card position-relative overflow-hidden">
+            <img src="resources/img/curso MIN.png" alt="Mindfulness" class="img-fluid w-100">
+            <div class="course-body p-3">
+              <h5 class="mb-1">Mindfulness</h5>
+              <p class="small text-muted">Prácticas diarias para presencia y calma.</p>
+              <a class="stretched-link btn btn-sm btn-outline-primary mt-2">Ver más</a>
+            </div>
+            <div class="course-overlay"></div>
+          </div>
         </div>
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="feature-card h-100 p-4">💳 <h5>Paga en cuotas sin intereses</h5></div>
+
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="course-card position-relative overflow-hidden">
+            <img src="resources/img/curso Comu.webp" alt="Comunicación asertiva" class="img-fluid w-100">
+            <div class="course-body p-3">
+              <h5 class="mb-1">Comunicación asertiva</h5>
+              <p class="small text-muted">Aprende a expresar límites y necesidades.</p>
+              <a class="stretched-link btn btn-sm btn-outline-primary mt-2">Ver más</a>
+            </div>
+            <div class="course-overlay"></div>
+          </div>
         </div>
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="feature-card h-100 p-4">🚀 <h5>Metodología probada</h5></div>
-        </div>
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="feature-card h-100 p-4">⭐ <h5>Especialízate con expertos</h5></div>
-        </div>
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="feature-card h-100 p-4">🌍 <h5>Profesores internacionales</h5></div>
+
+        <div class="col-12 col-md-6 col-lg-3">
+          <div class="course-card position-relative overflow-hidden">
+            <img src="resources/img/curso creci.png" alt="Crecimiento personal" class="img-fluid w-100">
+            <div class="course-body p-3">
+              <h5 class="mb-1">Crecimiento personal</h5>
+              <p class="small text-muted">Diseña tu plan de mejora continua.</p>
+              <a class="stretched-link btn btn-sm btn-outline-primary mt-2">Ver más</a>
+            </div>
+            <div class="course-overlay"></div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- PRECIOS -->
+  <section id="precios" class="py-5 section-alt">
+    <div class="container" data-aos="fade-up">
+      <h2 class="text-center fw-bold mb-4 text-white">Planes y precios</h2>
 
+      <div class="row g-4 justify-content-center align-items-stretch">
+        <div class="col-12 col-md-6 col-lg-4 d-flex">
+          <div class="pricing-card p-4 w-100 text-center">
+            <div class="plan text-white-50">Básico</div>
+            <div class="price display-6 text-white"><span class="currency">S/</span>59 <small class="text-white-50">/mes</small></div>
+            <ul class="list-unstyled text-white-50 my-3">
+              <li>1 curso</li>
+              <li>Acceso 1 mes</li>
+              <li>Certificado digital</li>
+            </ul>
+            <a href="#contacto" class="btn btn-outline-light pricing-cta">Inscribirme</a>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4 d-flex">
+          <div class="pricing-card recommended p-4 w-100 text-center">
+            <div class="badge-reco">Más popular</div>
+            <div class="plan text-white-50">Intermedio</div>
+            <div class="price display-6 text-white"><span class="currency">S/</span>99 <small class="text-white-50">/mes</small></div>
+            <ul class="list-unstyled text-white-50 my-3">
+              <li>3 cursos</li>
+              <li>Mentoría grupal</li>
+              <li>Material descargable</li>
+            </ul>
+            <a href="#contacto" class="btn btn-light pricing-cta">Recomendado</a>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4 d-flex">
+          <div class="pricing-card p-4 w-100 text-center">
+            <div class="plan text-white-50">Premium</div>
+            <div class="price display-6 text-white"><span class="currency">S/</span>149 <small class="text-white-50">/mes</small></div>
+            <ul class="list-unstyled text-white-50 my-3">
+              <li>Todos los cursos</li>
+              <li>Mentoría personalizada</li>
+              <li>Acceso de por vida</li>
+            </ul>
+            <a href="#contacto" class="btn btn-outline-light pricing-cta">Inscribirme</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIOS -->
+  <section id="testimonios" class="py-5">
+    <div class="container" data-aos="fade-up">
+      <h2 class="text-center fw-bold mb-4">Testimonios</h2>
+      <div class="row g-4">
+        <div class="col-12 col-md-6">
+          <div class="testi-large p-4 d-flex gap-3 align-items-start">
+            <img src="resources/img/Carlos Ruiz.jpg" class="testi-avatar-lg" alt="Carlos">
+            <div>
+              <div class="fw-bold">Carlos Ruiz</div>
+              <div class="small text-muted mb-2">Estudiante</div>
+              <p>“Después del curso puedo manejar mejor mi ansiedad y dormir mejor. Recomendado 100%.”</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <div class="testi-large p-4 d-flex gap-3 align-items-start">
+            <img src="resources/img/Ana Torres.jpg" class="testi-avatar-lg" alt="Ana">
+            <div>
+              <div class="fw-bold">Ana Torres</div>
+              <div class="small text-muted mb-2">Profesional</div>
+              <p>“Las técnicas de comunicación mejoraron mi desempeño en la oficina.”</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <div class="testi-large p-4 d-flex gap-3 align-items-start">
+            <img src="resources/img/María P..jpg" class="testi-avatar-lg" alt="María">
+            <div>
+              <div class="fw-bold">María P.</div>
+              <div class="small text-muted mb-2">Madre</div>
+              <p>“Aprendí ejercicios que aplico con mis hijos y en el trabajo.”</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <div class="testi-large p-4 d-flex gap-3 align-items-start">
+            <img src="resources/img/Javier L..jpg" class="testi-avatar-lg" alt="Javier">
+            <div>
+              <div class="fw-bold">Javier L.</div>
+              <div class="small text-muted mb-2">Estudiante</div>
+              <p>“Me ayudó con la regulación emocional y el trabajo en equipo.”</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- profesional -->
+        <div class="col-12">
+          <div class="expert-card p-4 d-flex gap-4 align-items-center">
+            <img src="resources/img/Dra. Laura Mendieta.jpg" class="expert-avatar" alt="Dra. Laura">
+            <div>
+              <div class="fw-bold h5">Dra. Laura Mendieta</div>
+              <div class="small text-muted mb-2">Psicóloga clínica — Asesora</div>
+              <p class="mb-0">“Recomiendo este programa por su enfoque práctico y su base en evidencia científica. Útil en prevención y como complemento terapéutico.”</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="py-5 section-alt">
+    <div class="container" data-aos="fade-up">
+      <h2 class="text-center fw-bold mb-4 text-white">Nuestro impacto</h2>
+
+      <!-- estadísticos alineados -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="stat-card p-3 text-center">
+            <div class="stat-icon">🧑‍🎓</div>
+            <div class="stat-value">1,200</div>
+            <div class="small text-white-50">Alumnos</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card p-3 text-center">
+            <div class="stat-icon">🎓</div>
+            <div class="stat-value">12</div>
+            <div class="small text-white-50">Cursos</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card p-3 text-center">
+            <div class="stat-icon">🌎</div>
+            <div class="stat-value">5</div>
+            <div class="small text-white-50">Países</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card p-3 text-center">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value">98%</div>
+            <div class="small text-white-50">Satisfacción</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- gráficos 1 grande + 2 pequeños -->
+      <div class="row g-3">
+        <div class="col-12 col-lg-7">
+          <div class="card card-chart p-3 h-100">
+            <h6 class="mb-2">Inscripciones (últimos 6 meses)</h6>
+            <div class="chart-wrapper">
+              <canvas id="chartInscripciones" class="chart-canvas"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-5">
+          <div class="d-flex flex-column gap-3 h-100">
+            <div class="card card-chart p-3 flex-fill">
+              <h6 class="mb-2">Top cursos</h6>
+              <div class="chart-wrapper small">
+                <canvas id="chartTopCursos" class="chart-canvas"></canvas>
+              </div>
+            </div>
+            <div class="card card-chart p-3 flex-fill">
+              <h6 class="mb-2">Satisfacción mensual</h6>
+              <div class="chart-wrapper small">
+                <canvas id="chartSatisfaccion" class="chart-canvas"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla -->
+      <div class="mt-4 card p-3">
+        <h6>Últimas inscripciones</h6>
+        <div class="table-responsive">
+          <table class="table table-sm" id="tableInscripciones">
+            <thead>
+              <tr><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Fecha</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FAQ (7 preguntas) -->
+  <section id="faq" class="py-5">
+    <div class="container" data-aos="fade-up">
+      <h2 class="text-center fw-bold mb-4">Preguntas frecuentes</h2>
+      <div class="accordion" id="accordionFAQ">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faqOne">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">¿Cómo me inscribo?</button>
+          </h2>
+          <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+            <div class="accordion-body">Completa el formulario, elige un plan y te enviamos instrucciones para pago.</div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faqTwo">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">¿Hay certificación?</button>
+          </h2>
+          <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+            <div class="accordion-body">Sí — certificado digital al completar el curso.</div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faqThree">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">¿Puedo pagar en cuotas?</button>
+          </h2>
+          <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+            <div class="accordion-body">Ofrecemos opciones de pago en cuotas mediante pasarela.</div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faqFour">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">¿Necesito experiencia previa?</button>
+          </h2>
+          <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+            <div class="accordion-body">No, contamos con niveles desde básico hasta avanzado.</div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faqFive">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive">¿Hay seguimiento post-curso?</button>
+          </h2>
+          <div id="collapseFive" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+            <div class="accordion-body">Sí, ofrecemos comunidad y sesiones de seguimiento según plan.</div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faqSix">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix">¿Puedo obtener reembolso?</button>
+          </h2>
+          <div id="collapseSix" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+            <div class="accordion-body">Política de reembolso con condiciones; contáctanos para detalles.</div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="faqSeven">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven">¿Cómo obtengo mi certificado?</button>
+          </h2>
+          <div id="collapseSeven" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+            <div class="accordion-body">El certificado se envía digitalmente al cumplir los requisitos.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
   <footer class="footer py-4">
     <div class="container d-flex flex-wrap justify-content-between align-items-center gap-3">
       <div>
@@ -150,9 +616,99 @@
     </div>
   </footer>
 
- 
-  <script src="js/script.js"></script>
+  <!-- MODALES: LOGIN / REGISTER / FORGOT -->
+  <div class="modal fade" id="modalLogin" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-3">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title">Iniciar sesión</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formLogin" novalidate>
+            <div class="mb-3">
+              <label class="form-label">Correo</label>
+              <input type="email" id="loginEmail" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Contraseña</label>
+              <input type="password" id="loginPassword" class="form-control" required>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <button type="submit" class="btn btn-primary">Entrar</button>
+              <a href="#" id="openForgot">¿Olvidaste tu contraseña?</a>
+            </div>
+          </form>
+          <div class="mt-3 text-center small">¿No tienes cuenta? <a href="#" id="openRegisterFromLogin">Crear cuenta</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalRegister" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-3">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title">Crear cuenta</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formRegister" novalidate>
+            <div class="mb-3">
+              <label class="form-label">Nombre completo</label>
+              <input type="text" id="regName" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Correo</label>
+              <input type="email" id="regEmail" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Teléfono</label>
+              <input type="tel" id="regPhone" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Contraseña</label>
+              <input type="password" id="regPassword" class="form-control" required>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">Crear cuenta</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalForgot" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-3">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title">Recuperar contraseña</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formForgot" novalidate>
+            <div class="mb-3" id="forgotStep1">
+              <label class="form-label">Ingresa tu correo</label>
+              <input type="email" id="forgotEmail" class="form-control" required>
+              <div class="mt-2 text-muted small">Si el correo está registrado recibirás instrucciones (demo).</div>
+              <div class="d-grid mt-3"><button class="btn btn-primary" id="btnSendReset" type="button">Enviar instrucciones</button></div>
+            </div>
+            <div class="mb-3 d-none" id="forgotStep2">
+              <label class="form-label">Nueva contraseña</label>
+              <input type="password" id="resetPassword" class="form-control">
+              <div class="d-grid mt-3"><button class="btn btn-primary" id="btnResetConfirm" type="button">Cambiar contraseña</button></div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-  <script>AOS.init({ duration: 1000, once: true });</script>
+  <script>AOS.init({ duration: 800, once: true });</script>
+  <script src="js/script.js"></script>
 </body>
 </html>
