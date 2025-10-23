@@ -132,3 +132,62 @@ body{
 
 /* Focus */
 :focus{ outline:3px solid rgba(111,108,217,0.14); outline-offset:2px; }
+
+/* ==== ESTILOS DASHBOARD ==== */
+.section-alt {
+  background: linear-gradient(135deg, #1b1f3b, #2b3570);
+  color: #fff;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+}
+.stat-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.15);
+}
+.stat-icon {
+  font-size: 2rem;
+  margin-bottom: 5px;
+}
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.card-chart {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+  transition: 0.3s ease;
+}
+.card-chart:hover {
+  transform: translateY(-4px);
+}
+.chart-wrapper {
+  height: 250px;
+}
+.chart-wrapper.small {
+  height: 180px;
+}
+
+/* Tabla */
+.card table {
+  background: transparent;
+  color: #fff;
+}
+.card thead {
+  background: rgba(255,255,255,0.15);
+}
+.card tbody tr:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* Colores generales */
+h6, .text-white-50 {
+  color: rgba(255,255,255,0.8) !important;
+}
