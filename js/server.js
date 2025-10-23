@@ -1,11 +1,17 @@
-// server.js
+// server.js (reemplaza tu archivo actual por este)
 import express from "express";
 import mysql from "mysql2/promise";
 import cors from "cors";
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(cors());
@@ -22,7 +28,42 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
-// --- Registro de usuario ---
+// Helpers JWT
+const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_change_this";
+function signToken(payload) {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+}
+function verifyToken(token) {
+  try {
+    return jwt.verify(token, JWT_SECRET);
+  } catch (e) {
+    return null;
+  }
+}
+
+// Middleware para rutas protegidas
+async function authMiddleware(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith("Bearer ")) return res.status(401).json({ error: "No autorizado" });
+  const token = auth.substring(7);
+  const payload = verifyToken(token);
+  if (!payload) return res.status(401).json({ error: "Token inválido" });
+
+  // opcional: cargar usuario desde DB
+  try {
+    const [rows] = await pool.query("SELECT id, nombre, correo, rol, fecha_registro FROM usuarios WHERE id = ?", [payload.id]);
+    if (rows.length === 0) return res.status(401).json({ error: "Usuario no encontrado" });
+    req.user = rows[0];
+    next();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error del servidor" });
+  }
+}
+
+// ---------- RUTAS DE AUTENTICACIÓN ----------
+
+// Registro -> guarda usuario y devuelve token + user (sin contraseña)
 app.post("/api/register", async (req, res) => {
   try {
     const { nombre, correo, contrasena, telefono } = req.body;
@@ -33,7 +74,15 @@ app.post("/api/register", async (req, res) => {
       "INSERT INTO usuarios (nombre, correo, contrasena) VALUES (?, ?, ?)",
       [nombre, correo, hashed]
     );
-    res.json({ success: true, id: result.insertId });
+
+    const userId = result.insertId;
+    const token = signToken({ id: userId, correo });
+
+    // devolver usuario sin contrasena
+    const [rows] = await pool.query("SELECT id, nombre, correo, rol, fecha_registro FROM usuarios WHERE id = ?", [userId]);
+    const user = rows[0];
+
+    res.json({ success: true, token, user });
   } catch (err) {
     console.error(err);
     if (err.code === "ER_DUP_ENTRY") return res.status(400).json({ error: "Correo ya registrado" });
@@ -41,7 +90,7 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-// --- Login simple (demo) ---
+// Login -> compara contraseña y devuelve token + user
 app.post("/api/login", async (req, res) => {
   try {
     const { correo, contrasena } = req.body;
@@ -50,20 +99,34 @@ app.post("/api/login", async (req, res) => {
     const [rows] = await pool.query("SELECT id, nombre, correo, contrasena, rol FROM usuarios WHERE correo = ?", [correo]);
     if (rows.length === 0) return res.status(401).json({ error: "Credenciales inválidas" });
 
-    const user = rows[0];
-    const match = await bcrypt.compare(contrasena, user.contrasena);
+    const userRow = rows[0];
+    const match = await bcrypt.compare(contrasena, userRow.contrasena);
     if (!match) return res.status(401).json({ error: "Credenciales inválidas" });
 
-    // Demo -> devolvemos info básica (en producción usar JWT)
-    delete user.contrasena;
-    res.json({ success: true, user });
+    const token = signToken({ id: userRow.id, correo: userRow.correo });
+
+    const user = {
+      id: userRow.id,
+      nombre: userRow.nombre,
+      correo: userRow.correo,
+      rol: userRow.rol
+    };
+
+    res.json({ success: true, token, user });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error del servidor" });
   }
 });
 
-// --- Insertar inscripcion (formulario de la landing) ---
+// Ruta para obtener datos del usuario logueado
+app.get("/api/me", authMiddleware, (req, res) => {
+  res.json({ user: req.user });
+});
+
+// ---------- ENDPOINTS EXISTENTES (inscripciones, métricas, etc) ----------
+
+// Insertar inscripcion (formulario público)
 app.post("/api/inscripciones", async (req, res) => {
   try {
     const { nombre, correo, telefono, mensaje } = req.body;
@@ -84,7 +147,7 @@ app.post("/api/inscripciones", async (req, res) => {
   }
 });
 
-// --- Listar últimas inscripciones ---
+// Listar últimas inscripciones
 app.get("/api/inscripciones", async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT id, nombre, correo, telefono, mensaje, fecha FROM inscripciones ORDER BY fecha DESC LIMIT 100");
@@ -95,10 +158,9 @@ app.get("/api/inscripciones", async (req, res) => {
   }
 });
 
-// --- Datos para inscripciones últimos 6 meses (para Chart.js) ---
+// Inscripciones últimos 6 meses
 app.get("/api/inscripciones/ultimos6meses", async (req, res) => {
   try {
-    // MySQL: agrupa por año+mes, trae últimos 6 meses
     const [rows] = await pool.query(`
       SELECT DATE_FORMAT(fecha, '%Y-%m') AS ym, COUNT(*) AS total
       FROM inscripciones
@@ -107,10 +169,8 @@ app.get("/api/inscripciones/ultimos6meses", async (req, res) => {
       ORDER BY ym ASC
     `);
 
-    // Queremos 6 puntos (incluso si algunos meses 0)
     const labels = [];
     const counts = [];
-    // construir lista de últimos 6 meses
     const months = [];
     for (let i = 5; i >= 0; i--) {
       const d = new Date();
@@ -133,17 +193,13 @@ app.get("/api/inscripciones/ultimos6meses", async (req, res) => {
   }
 });
 
-// --- Métricas rápidas para tarjetas (alumnos, cursos, paises, satisfacción) ---
-// Not all values exist in DB; aquí calculamos algunos basicos desde tablas que sí tienes
+// Métricas rápidas para tarjetas del home
 app.get("/api/metricas/home", async (req, res) => {
   try {
-    // alumnos = total inscripciones (o usuarios según prefieras)
     const [[alumnos]] = await pool.query("SELECT COUNT(*) AS total FROM inscripciones");
     const [[usuarios]] = await pool.query("SELECT COUNT(*) AS total FROM usuarios");
-    // cursos y paises no están en BD -> devolvemos valores demo o 0
-    const cursos = 12; // si no está en BD, deja un valor estático o crea tabla cursos
+    const cursos = 12;
     const paises = 5;
-    // satisfacción: calculo demo desde metricas tipo 'satisfaccion' si existiera
     const [[satRow]] = await pool.query("SELECT AVG(valor) AS avgSat FROM metricas WHERE tipo = 'satisfaccion'");
     const satisfaccion = satRow && satRow.avgSat ? Math.round(satRow.avgSat) + "%" : "98%";
 
@@ -160,20 +216,15 @@ app.get("/api/metricas/home", async (req, res) => {
   }
 });
 
-import path from "path";
-import { fileURLToPath } from "url";
+// ---------- SERVIR ARCHIVOS ESTÁTICOS (FRONT) ----------
+app.use(express.static(path.join(__dirname, ".."))); // ajusta según estructura: index.html debe estar una carpeta arriba
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Servir archivos estáticos desde la carpeta raíz del proyecto
-app.use(express.static(path.join(__dirname, "../"))); // <-- ajusta la ruta según dónde está tu index.html
-
-// Si alguien entra a "/", devuelve index.html
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../index.html"));
+  res.sendFile(path.join(__dirname, "..", "index.html"));
 });
 
+// Ruta de prueba
+app.get("/api/test", (req, res) => res.send("Servidor funcionando correctamente 🚀"));
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`API escuchando en http://localhost:${PORT}`));
