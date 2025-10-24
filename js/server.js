@@ -1,4 +1,3 @@
-// server.js
 import express from "express";
 import mysql from "mysql2/promise";
 import cors from "cors";
@@ -41,7 +40,7 @@ function verifyToken(token) {
   }
 }
 
-// Middleware para rutas protegidas
+
 async function authMiddleware(req, res, next) {
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith("Bearer ")) return res.status(401).json({ error: "No autorizado" });
@@ -60,7 +59,7 @@ async function authMiddleware(req, res, next) {
   }
 }
 
-// --- Crear admin automáticamente si se configuran variables en .env
+
 async function ensureAdminFromEnv() {
   const adminEmail = process.env.ADMIN_EMAIL;
   const adminPass = process.env.ADMIN_PASS;
@@ -95,12 +94,10 @@ async function ensureAdminFromEnv() {
   }
 }
 
-// Ejecutar creación/admin check al iniciar servidor
+
 ensureAdminFromEnv().catch(err => console.error(err));
 
-// ---------- RUTAS DE AUTENTICACIÓN ----------
 
-// Registro -> guarda usuario y devuelve token + user (sin contraseña)
 app.post("/api/register", async (req, res) => {
   try {
     const { nombre, correo, contrasena, telefono } = req.body;
@@ -126,7 +123,7 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-// Login -> compara contraseña y devuelve token + user
+
 app.post("/api/login", async (req, res) => {
   try {
     const { correo, contrasena } = req.body;
@@ -155,14 +152,14 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// Ruta para obtener datos del usuario logueado
+
 app.get("/api/me", authMiddleware, (req, res) => {
   res.json({ user: req.user });
 });
 
-// ---------- ENDPOINTS EXISTENTES (inscripciones, métricas, etc) ----------
 
-// Insertar inscripcion (formulario público)
+
+
 app.post("/api/inscripciones", async (req, res) => {
   try {
     const { nombre, correo, telefono, mensaje } = req.body;
@@ -173,7 +170,7 @@ app.post("/api/inscripciones", async (req, res) => {
       [nombre, correo, telefono || null, mensaje || null]
     );
 
-    // insertar métrica
+  
     await pool.query("INSERT INTO metricas (tipo, valor) VALUES (?, ?)", ["inscripcion", 1]);
 
     res.json({ success: true, id: result.insertId });
@@ -183,7 +180,7 @@ app.post("/api/inscripciones", async (req, res) => {
   }
 });
 
-// Listar últimas inscripciones
+
 app.get("/api/inscripciones", async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT id, nombre, correo, telefono, mensaje, fecha FROM inscripciones ORDER BY fecha DESC LIMIT 100");
@@ -194,7 +191,7 @@ app.get("/api/inscripciones", async (req, res) => {
   }
 });
 
-// Inscripciones últimos 6 meses
+
 app.get("/api/inscripciones/ultimos6meses", async (req, res) => {
   try {
     const [rows] = await pool.query(`
@@ -229,7 +226,7 @@ app.get("/api/inscripciones/ultimos6meses", async (req, res) => {
   }
 });
 
-// Métricas rápidas para tarjetas del home
+
 app.get("/api/metricas/home", async (req, res) => {
   try {
     const [[alumnos]] = await pool.query("SELECT COUNT(*) AS total FROM inscripciones");
@@ -253,14 +250,14 @@ app.get("/api/metricas/home", async (req, res) => {
 });
 
 
-// ---------- RUTAS ADMIN (protegidas) ----------
+
 async function adminOnly(req, res, next) {
   if (!req.user) return res.status(401).json({ error: "No autorizado" });
   if (req.user.rol !== "admin") return res.status(403).json({ error: "Acceso restringido - admin only" });
   next();
 }
 
-// Obtener todos los usuarios (sin contraseñas)
+
 app.get("/api/admin/users", authMiddleware, adminOnly, async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT id, nombre, correo, rol, fecha_registro FROM usuarios ORDER BY fecha_registro DESC");
@@ -271,7 +268,7 @@ app.get("/api/admin/users", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
-// Modificar rol de usuario (promover/demover)
+
 app.put("/api/admin/users/:id/role", authMiddleware, adminOnly, async (req, res) => {
   try {
     const { id } = req.params;
@@ -285,7 +282,7 @@ app.put("/api/admin/users/:id/role", authMiddleware, adminOnly, async (req, res)
   }
 });
 
-// Eliminar usuario
+
 app.delete("/api/admin/users/:id", authMiddleware, adminOnly, async (req, res) => {
   try {
     const { id } = req.params;
@@ -297,7 +294,7 @@ app.delete("/api/admin/users/:id", authMiddleware, adminOnly, async (req, res) =
   }
 });
 
-// Obtener inscripciones
+
 app.get("/api/admin/inscripciones", authMiddleware, adminOnly, async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT id, nombre, correo, telefono, mensaje, fecha FROM inscripciones ORDER BY fecha DESC");
@@ -308,7 +305,7 @@ app.get("/api/admin/inscripciones", authMiddleware, adminOnly, async (req, res) 
   }
 });
 
-// Eliminar una inscripcion
+
 app.delete("/api/admin/inscripciones/:id", authMiddleware, adminOnly, async (req, res) => {
   try {
     const { id } = req.params;
@@ -320,7 +317,7 @@ app.delete("/api/admin/inscripciones/:id", authMiddleware, adminOnly, async (req
   }
 });
 
-// Obtener compras
+
 app.get("/api/admin/compras", authMiddleware, adminOnly, async (req, res) => {
   try {
     const [rows] = await pool.query(`
@@ -336,7 +333,7 @@ app.get("/api/admin/compras", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
-// Obtener métricas
+
 app.get("/api/admin/metricas", authMiddleware, adminOnly, async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT id, tipo, valor, fecha FROM metricas ORDER BY fecha DESC LIMIT 500");
@@ -348,14 +345,14 @@ app.get("/api/admin/metricas", authMiddleware, adminOnly, async (req, res) => {
 });
 
 
-// ---------- SERVIR ARCHIVOS ESTÁTICOS (FRONT) ----------
-app.use(express.static(path.join(__dirname, ".."))); // ajusta según estructura: index.html debe estar una carpeta arriba
+
+app.use(express.static(path.join(__dirname, ".."))); 
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "..", "index.html"));
 });
 
-// Ruta de prueba
+
 app.get("/api/test", (req, res) => res.send("Servidor funcionando correctamente 🚀"));
 
 const PORT = process.env.PORT || 4000;

@@ -1,4 +1,3 @@
-// js/admin.js
 document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
   if (!token) return redirectToHome();
@@ -44,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
     await loadIngresos();
   }
 
-  // ----- Users -----
+  //Users 
   async function loadUsers() {
     try {
       const res = await fetch("/api/admin/users", { headers });
@@ -65,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
         tableUsers.appendChild(tr);
       });
 
-      // listeners
+      //listeners
       tableUsers.querySelectorAll(".btnPromote").forEach(btn => btn.addEventListener("click", promoteUser));
       tableUsers.querySelectorAll(".btnDemote").forEach(btn => btn.addEventListener("click", demoteUser));
       tableUsers.querySelectorAll(".btnDeleteUser").forEach(btn => btn.addEventListener("click", deleteUser));
@@ -93,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
     await loadUsers();
   }
 
-  // ----- Inscripciones -----
+  //Inscripciones 
   async function loadInscripciones() {
     try {
       const res = await fetch("/api/admin/inscripciones", { headers });
@@ -124,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
     await loadChartData();
   }
 
-  // ----- Metric as -----
+  // Metricas 
   async function loadMetricas() {
     try {
       const res = await fetch("/api/admin/metricas", { headers });
@@ -140,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ----- Ingresos (suma de compras) -----
+  //Ingresos 
   async function loadIngresos() {
     try {
       const res = await fetch("/api/admin/compras", { headers });
@@ -152,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ----- Chart: inscripciones últimos 6 meses -----
+  //Chart: inscripciones últimos 6 meses 
   async function loadChartData() {
     try {
       const res = await fetch("/api/inscripciones/ultimos6meses");

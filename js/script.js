@@ -1,4 +1,3 @@
-// js/script.js
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("formulario");
   const btnText = document.getElementById("btnText");
@@ -6,25 +5,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const msg = document.getElementById("msg");
   const tableBody = document.querySelector("#tableInscripciones tbody");
 
-  // auth elements
+ 
   const formRegister = document.getElementById("formRegister");
   const formLogin = document.getElementById("formLogin");
   const btnOpenLogin = document.getElementById("btnOpenLogin");
   const btnOpenRegister = document.getElementById("btnOpenRegister");
 
-  // modal internal links
+ 
   const openForgot = document.getElementById("openForgot");
   const openRegisterFromLogin = document.getElementById("openRegisterFromLogin");
 
-  // where to insert admin link (container in header)
+ 
   const headerAuthContainer = document.getElementById("headerAuthActions") || document.querySelector(".main-header .d-flex.align-items-center.gap-3");
 
-  // Chart placeholders
+ 
   let chartInscripciones = null;
   let chartTopCursos = null;
   let chartSatisfaccion = null;
 
-  // ---------- Helpers ----------
+ 
   function setLoading(on) {
     if (on) {
       btnSpin.classList.remove("d-none");
@@ -54,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return h;
   }
 
-  // ---------- Bootstrap modal helpers ----------
+
   function showModalById(id) {
     const el = document.getElementById(id);
     if (!el) return null;
@@ -69,27 +68,26 @@ document.addEventListener("DOMContentLoaded", () => {
     if (inst) inst.hide();
   }
 
-  // ---------- Render user in header (robusto) ----------
-  // Adds admin button when user.rol === 'admin'
+
   function renderUserInHeader(user) {
-    // Remove previous user box and admin link if present
+    
     const prev = document.getElementById("headerUserBox");
     if (prev) prev.remove();
     const prevAdminLink = document.getElementById("adminLinkHeader");
     if (prevAdminLink) prevAdminLink.remove();
 
-    // If no user, ensure auth buttons visible
+
     if (!user) {
       if (btnOpenLogin) btnOpenLogin.classList.remove("d-none");
       if (btnOpenRegister) btnOpenRegister.classList.remove("d-none");
       return;
     }
 
-    // Hide original auth buttons
+   
     if (btnOpenLogin) btnOpenLogin.classList.add("d-none");
     if (btnOpenRegister) btnOpenRegister.classList.add("d-none");
 
-    // Create user box
+
     const box = document.createElement("div");
     box.id = "headerUserBox";
     box.className = "d-flex align-items-center gap-2 header-user-pill";
@@ -99,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <button id="btnLogout" class="btn btn-sm">Cerrar sesión</button>
     `;
 
-    // Insert into header actions container
+   
     if (headerAuthContainer) {
       const mobileBtn = headerAuthContainer.querySelector("#mobileMenuBtn");
       if (mobileBtn) headerAuthContainer.insertBefore(box, mobileBtn);
@@ -110,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
       else document.body.appendChild(box);
     }
 
-    // Logout handler
+ 
     const logoutBtn = document.getElementById("btnLogout");
     if (logoutBtn) {
       logoutBtn.classList.add("logout-btn");
@@ -122,19 +120,19 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // If user is admin, add admin link/button
+ 
     if (user.rol === "admin") {
       const adminLink = document.createElement("a");
       adminLink.id = "adminLinkHeader";
       adminLink.href = "/admin.html";
       adminLink.className = "btn btn-outline-primary btn-sm ms-2";
       adminLink.textContent = "Panel Admin";
-      // insert after user box
+
       box.insertAdjacentElement("afterend", adminLink);
     }
   }
 
-  // ---------- Inscripciones & Graficos ----------
+
   async function fetchInscripciones() {
     try {
       const res = await fetch("/api/inscripciones");
@@ -159,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const insData = await insResp.json();
       const home = await homeResp.json();
 
-      // Chart Inscripciones (line)
+ 
       const ctx = document.getElementById("chartInscripciones").getContext("2d");
       if (chartInscripciones) chartInscripciones.destroy();
       chartInscripciones = new Chart(ctx, {
@@ -168,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
         options: { responsive: true }
       });
 
-      // Top cursos -> demo
+    
       const ctx2 = document.getElementById("chartTopCursos").getContext("2d");
       if (chartTopCursos) chartTopCursos.destroy();
       chartTopCursos = new Chart(ctx2, {
@@ -180,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
         options: { responsive: true }
       });
 
-      // Satisfacción demo
+
       const ctx3 = document.getElementById("chartSatisfaccion").getContext("2d");
       if (chartSatisfaccion) chartSatisfaccion.destroy();
       chartSatisfaccion = new Chart(ctx3, {
@@ -189,7 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
         options: { responsive: true }
       });
 
-      // actualizar tarjetas del dashboard (por posición)
+  
       try {
         const statValues = document.querySelectorAll(".stat-card .stat-value");
         if (statValues.length >= 4) {
@@ -204,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ---------- Form inscripcion ----------
+
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -239,7 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---------- AUTH: Register ----------
+
   if (formRegister) {
     formRegister.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -257,10 +255,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Error al registrar");
 
-        // store token if provided
+      
         if (data.token) setToken(data.token);
 
-        // Try to get user info: prefer server response, otherwise call /api/me
         let user = data.user || null;
         if (!user && getToken()) {
           const meRes = await fetch("/api/me", { headers: authHeaders() });
@@ -272,7 +269,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         renderUserInHeader(user || { nombre });
 
-        // If admin, redirect to admin panel automatically
+      
         if (user && user.rol === "admin") {
           window.location.href = "/admin.html";
           return;
@@ -287,7 +284,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---------- AUTH: Login ----------
+
   if (formLogin) {
     formLogin.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -305,7 +302,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (data.token) setToken(data.token);
 
-        // Prefer server user, else /api/me
+      
         let user = data.user || null;
         if (!user && getToken()) {
           const meRes = await fetch("/api/me", { headers: authHeaders() });
@@ -317,7 +314,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         renderUserInHeader(user || { nombre: correo });
 
-        // If admin -> redirect to admin panel
+       
         if (user && user.rol === "admin") {
           window.location.href = "/admin.html";
           return;
@@ -332,13 +329,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---------- Event listeners para abrir modales ----------
+ 
   if (btnOpenLogin) btnOpenLogin.addEventListener("click", (e) => { e.preventDefault(); showModalById("modalLogin"); });
   if (btnOpenRegister) btnOpenRegister.addEventListener("click", (e) => { e.preventDefault(); showModalById("modalRegister"); });
   if (openForgot) openForgot.addEventListener("click", (e) => { e.preventDefault(); hideModalById("modalLogin"); showModalById("modalForgot"); });
   if (openRegisterFromLogin) openRegisterFromLogin.addEventListener("click", (e) => { e.preventDefault(); hideModalById("modalLogin"); showModalById("modalRegister"); });
 
-  // ---------- Restaurar sesión al cargar ----------
+
   async function tryRestoreSession() {
     const token = getToken();
     if (!token) {
@@ -351,9 +348,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!res.ok) throw new Error(data.error || "No autorizado");
       renderUserInHeader(data.user);
 
-      // If admin, ensure admin link visible (do not auto-redirect on page load to avoid surprising the user)
-      // If you prefer auto-redirect on page load for admin, uncomment the line below:
-      // if (data.user && data.user.rol === "admin") window.location.href = "/admin.html";
     } catch (err) {
       console.warn("No se pudo restaurar sesión:", err);
       setToken(null);
@@ -361,11 +355,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ---------- Inicialización ----------
+
   fetchInscripciones();
   fetchGraficos();
   tryRestoreSession();
 
-  // export para debug
+
   window.__app = { fetchInscripciones, fetchGraficos, tryRestoreSession, renderUserInHeader };
 });
