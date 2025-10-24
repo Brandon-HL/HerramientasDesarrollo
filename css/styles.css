@@ -233,3 +233,12 @@ h6, .text-white-50 {
 @media (max-width: 767px) {
   #headerUserBox { display: none; } /* opcional: esconder en móviles si no hay espacio */
 }
+
+
+/* Admin panel tweaks */
+.admin-header { background: linear-gradient(90deg,#0b1720,#0f2a3a); }
+.card-admin h6 { margin-bottom: 10px; font-weight: 600; }
+#adminUserBox { color: #fff; }
+#adminUserName { color: #fff; font-weight: 600; }
+.logout-btn { background:#dc3545; color:#fff; border:none; padding:6px 10px; border-radius:8px; }
+.table-actions button { margin-right: 6px; }

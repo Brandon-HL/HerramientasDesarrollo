@@ -16,6 +16,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const openForgot = document.getElementById("openForgot");
   const openRegisterFromLogin = document.getElementById("openRegisterFromLogin");
 
+  // where to insert admin link (container in header)
+  const headerAuthContainer = document.getElementById("headerAuthActions") || document.querySelector(".main-header .d-flex.align-items-center.gap-3");
+
   // Chart placeholders
   let chartInscripciones = null;
   let chartTopCursos = null;
@@ -67,12 +70,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ---------- Render user in header (robusto) ----------
+  // Adds admin button when user.rol === 'admin'
   function renderUserInHeader(user) {
-    // Remove previous
+    // Remove previous user box and admin link if present
     const prev = document.getElementById("headerUserBox");
     if (prev) prev.remove();
+    const prevAdminLink = document.getElementById("adminLinkHeader");
+    if (prevAdminLink) prevAdminLink.remove();
 
-    // If no user, ensure auth buttons are visible
+    // If no user, ensure auth buttons visible
     if (!user) {
       if (btnOpenLogin) btnOpenLogin.classList.remove("d-none");
       if (btnOpenRegister) btnOpenRegister.classList.remove("d-none");
@@ -87,7 +93,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const box = document.createElement("div");
     box.id = "headerUserBox";
     box.className = "d-flex align-items-center gap-2 header-user-pill";
-
     const displayName = user.nombre || user.name || user.email || "Usuario";
     box.innerHTML = `
       <div class="small text-muted">Hola, <strong>${escapeHtml(displayName)}</strong></div>
@@ -95,27 +100,37 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
 
     // Insert into header actions container
-    const container = document.getElementById("headerAuthActions");
-    if (container) {
-      // Insert before the mobile menu button for consistent placement
-      const mobileBtn = container.querySelector("#mobileMenuBtn");
-      if (mobileBtn) container.insertBefore(box, mobileBtn);
-      else container.appendChild(box);
+    if (headerAuthContainer) {
+      const mobileBtn = headerAuthContainer.querySelector("#mobileMenuBtn");
+      if (mobileBtn) headerAuthContainer.insertBefore(box, mobileBtn);
+      else headerAuthContainer.appendChild(box);
     } else {
-      // fallback: insert into userContainer
       const userContainer = document.getElementById("userContainer");
       if (userContainer) userContainer.appendChild(box);
       else document.body.appendChild(box);
     }
 
-    // style the logout btn to match CSS
+    // Logout handler
     const logoutBtn = document.getElementById("btnLogout");
     if (logoutBtn) {
       logoutBtn.classList.add("logout-btn");
       logoutBtn.addEventListener("click", () => {
         setToken(null);
         renderUserInHeader(null);
+        // reload to clear UI state
+        window.location.href = "/";
       });
+    }
+
+    // If user is admin, add admin link/button
+    if (user.rol === "admin") {
+      const adminLink = document.createElement("a");
+      adminLink.id = "adminLinkHeader";
+      adminLink.href = "/admin.html";
+      adminLink.className = "btn btn-outline-primary btn-sm ms-2";
+      adminLink.textContent = "Panel Admin";
+      // insert after user box
+      box.insertAdjacentElement("afterend", adminLink);
     }
   }
 
@@ -153,12 +168,15 @@ document.addEventListener("DOMContentLoaded", () => {
         options: { responsive: true }
       });
 
-      // Top cursos demo
+      // Top cursos -> demo
       const ctx2 = document.getElementById("chartTopCursos").getContext("2d");
       if (chartTopCursos) chartTopCursos.destroy();
       chartTopCursos = new Chart(ctx2, {
         type: "bar",
-        data: { labels: ["Inteligencia Emocional","Mindfulness","Comunicación","Crecimiento"], datasets: [{ label: "Alumnos", data: [120,90,75,60] }] },
+        data: {
+          labels: ["Inteligencia Emocional", "Mindfulness", "Comunicación", "Crecimiento"],
+          datasets: [{ label: "Alumnos", data: [120, 90, 75, 60] }]
+        },
         options: { responsive: true }
       });
 
@@ -167,7 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (chartSatisfaccion) chartSatisfaccion.destroy();
       chartSatisfaccion = new Chart(ctx3, {
         type: "doughnut",
-        data: { labels: ["Satisfechos","Neutrales/No"], datasets: [{ label: "Satisfacción", data: [98,2] }] },
+        data: { labels: ["Satisfechos", "Neutrales/No"], datasets: [{ label: "Satisfacción", data: [98, 2] }] },
         options: { responsive: true }
       });
 
@@ -242,7 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // store token if provided
         if (data.token) setToken(data.token);
 
-        // get user info (either from response or /api/me)
+        // Try to get user info: prefer server response, otherwise call /api/me
         let user = data.user || null;
         if (!user && getToken()) {
           const meRes = await fetch("/api/me", { headers: authHeaders() });
@@ -251,7 +269,14 @@ document.addEventListener("DOMContentLoaded", () => {
             user = meData.user || null;
           }
         }
+
         renderUserInHeader(user || { nombre });
+
+        // If admin, redirect to admin panel automatically
+        if (user && user.rol === "admin") {
+          window.location.href = "/admin.html";
+          return;
+        }
 
         hideModalById("modalRegister");
         formRegister.reset();
@@ -280,6 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (data.token) setToken(data.token);
 
+        // Prefer server user, else /api/me
         let user = data.user || null;
         if (!user && getToken()) {
           const meRes = await fetch("/api/me", { headers: authHeaders() });
@@ -288,7 +314,14 @@ document.addEventListener("DOMContentLoaded", () => {
             user = meData.user || null;
           }
         }
+
         renderUserInHeader(user || { nombre: correo });
+
+        // If admin -> redirect to admin panel
+        if (user && user.rol === "admin") {
+          window.location.href = "/admin.html";
+          return;
+        }
 
         hideModalById("modalLogin");
         formLogin.reset();
@@ -317,6 +350,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "No autorizado");
       renderUserInHeader(data.user);
+
+      // If admin, ensure admin link visible (do not auto-redirect on page load to avoid surprising the user)
+      // If you prefer auto-redirect on page load for admin, uncomment the line below:
+      // if (data.user && data.user.rol === "admin") window.location.href = "/admin.html";
     } catch (err) {
       console.warn("No se pudo restaurar sesión:", err);
       setToken(null);

@@ -1,4 +1,4 @@
-// server.js (reemplaza tu archivo actual por este)
+// server.js
 import express from "express";
 import mysql from "mysql2/promise";
 import cors from "cors";
@@ -49,17 +49,54 @@ async function authMiddleware(req, res, next) {
   const payload = verifyToken(token);
   if (!payload) return res.status(401).json({ error: "Token inválido" });
 
-  // opcional: cargar usuario desde DB
   try {
     const [rows] = await pool.query("SELECT id, nombre, correo, rol, fecha_registro FROM usuarios WHERE id = ?", [payload.id]);
     if (rows.length === 0) return res.status(401).json({ error: "Usuario no encontrado" });
     req.user = rows[0];
     next();
   } catch (err) {
-    console.error(err);
+    console.error("authMiddleware error:", err);
     res.status(500).json({ error: "Error del servidor" });
   }
 }
+
+// --- Crear admin automáticamente si se configuran variables en .env
+async function ensureAdminFromEnv() {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPass = process.env.ADMIN_PASS;
+  if (!adminEmail || !adminPass) {
+    console.log("ADMIN_EMAIL o ADMIN_PASS no configurados; no se creará admin automáticamente.");
+    return;
+  }
+
+  try {
+    const [rows] = await pool.query("SELECT id, correo, rol FROM usuarios WHERE correo = ?", [adminEmail]);
+    if (rows.length === 0) {
+      const hashed = await bcrypt.hash(adminPass, 10);
+      const nombre = "Administrador";
+      const [result] = await pool.query(
+        "INSERT INTO usuarios (nombre, correo, contrasena, rol) VALUES (?, ?, ?, 'admin')",
+        [nombre, adminEmail, hashed]
+      );
+      console.log(`Admin creado: ${adminEmail} (id: ${result.insertId}). Usa la contraseña de ADMIN_PASS en .env para iniciar sesión.`);
+    } else {
+      // existe: asegurar rol admin
+      const user = rows[0];
+      if (user.rol !== "admin") {
+        await pool.query("UPDATE usuarios SET rol = 'admin' WHERE id = ?", [user.id]);
+        console.log(`Usuario existente ${adminEmail} actualizado a rol 'admin'.`);
+      } else {
+        console.log(`Admin ya existe: ${adminEmail}`);
+      }
+      console.log("Si quieres cambiar la contraseña del admin, actualiza ADMIN_PASS y usa la herramienta recomendada (ver instrucciones).");
+    }
+  } catch (err) {
+    console.error("Error al asegurar admin desde .env:", err);
+  }
+}
+
+// Ejecutar creación/admin check al iniciar servidor
+ensureAdminFromEnv().catch(err => console.error(err));
 
 // ---------- RUTAS DE AUTENTICACIÓN ----------
 
@@ -78,14 +115,13 @@ app.post("/api/register", async (req, res) => {
     const userId = result.insertId;
     const token = signToken({ id: userId, correo });
 
-    // devolver usuario sin contrasena
     const [rows] = await pool.query("SELECT id, nombre, correo, rol, fecha_registro FROM usuarios WHERE id = ?", [userId]);
     const user = rows[0];
 
     res.json({ success: true, token, user });
   } catch (err) {
-    console.error(err);
-    if (err.code === "ER_DUP_ENTRY") return res.status(400).json({ error: "Correo ya registrado" });
+    console.error("register error:", err);
+    if (err && err.code === "ER_DUP_ENTRY") return res.status(400).json({ error: "Correo ya registrado" });
     res.status(500).json({ error: "Error del servidor" });
   }
 });
@@ -114,7 +150,7 @@ app.post("/api/login", async (req, res) => {
 
     res.json({ success: true, token, user });
   } catch (err) {
-    console.error(err);
+    console.error("login error:", err);
     res.status(500).json({ error: "Error del servidor" });
   }
 });
@@ -137,12 +173,12 @@ app.post("/api/inscripciones", async (req, res) => {
       [nombre, correo, telefono || null, mensaje || null]
     );
 
-    // opcional: insertar métrica
+    // insertar métrica
     await pool.query("INSERT INTO metricas (tipo, valor) VALUES (?, ?)", ["inscripcion", 1]);
 
     res.json({ success: true, id: result.insertId });
   } catch (err) {
-    console.error(err);
+    console.error("inscripciones POST error:", err);
     res.status(500).json({ error: "Error al guardar" });
   }
 });
@@ -153,7 +189,7 @@ app.get("/api/inscripciones", async (req, res) => {
     const [rows] = await pool.query("SELECT id, nombre, correo, telefono, mensaje, fecha FROM inscripciones ORDER BY fecha DESC LIMIT 100");
     res.json(rows);
   } catch (err) {
-    console.error(err);
+    console.error("inscripciones GET error:", err);
     res.status(500).json({ error: "Error al listar" });
   }
 });
@@ -188,7 +224,7 @@ app.get("/api/inscripciones/ultimos6meses", async (req, res) => {
 
     res.json({ labels, counts });
   } catch (err) {
-    console.error(err);
+    console.error("inscripciones ultimos6meses error:", err);
     res.status(500).json({ error: "Error al generar datos" });
   }
 });
@@ -211,10 +247,106 @@ app.get("/api/metricas/home", async (req, res) => {
       satisfaccion
     });
   } catch (err) {
-    console.error(err);
+    console.error("metricas/home error:", err);
     res.status(500).json({ error: "Error al obtener métricas" });
   }
 });
+
+
+// ---------- RUTAS ADMIN (protegidas) ----------
+async function adminOnly(req, res, next) {
+  if (!req.user) return res.status(401).json({ error: "No autorizado" });
+  if (req.user.rol !== "admin") return res.status(403).json({ error: "Acceso restringido - admin only" });
+  next();
+}
+
+// Obtener todos los usuarios (sin contraseñas)
+app.get("/api/admin/users", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT id, nombre, correo, rol, fecha_registro FROM usuarios ORDER BY fecha_registro DESC");
+    res.json(rows);
+  } catch (err) {
+    console.error("admin/users error:", err);
+    res.status(500).json({ error: "Error al obtener usuarios" });
+  }
+});
+
+// Modificar rol de usuario (promover/demover)
+app.put("/api/admin/users/:id/role", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rol } = req.body;
+    if (!["usuario","admin"].includes(rol)) return res.status(400).json({ error: "Rol inválido" });
+    await pool.query("UPDATE usuarios SET rol = ? WHERE id = ?", [rol, id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("admin/users/:id/role error:", err);
+    res.status(500).json({ error: "Error actualizando rol" });
+  }
+});
+
+// Eliminar usuario
+app.delete("/api/admin/users/:id", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query("DELETE FROM usuarios WHERE id = ?", [id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("admin delete user error:", err);
+    res.status(500).json({ error: "Error eliminando usuario" });
+  }
+});
+
+// Obtener inscripciones
+app.get("/api/admin/inscripciones", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT id, nombre, correo, telefono, mensaje, fecha FROM inscripciones ORDER BY fecha DESC");
+    res.json(rows);
+  } catch (err) {
+    console.error("admin/inscripciones error:", err);
+    res.status(500).json({ error: "Error al obtener inscripciones" });
+  }
+});
+
+// Eliminar una inscripcion
+app.delete("/api/admin/inscripciones/:id", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query("DELETE FROM inscripciones WHERE id = ?", [id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("admin delete inscripcion error:", err);
+    res.status(500).json({ error: "Error eliminando inscripcion" });
+  }
+});
+
+// Obtener compras
+app.get("/api/admin/compras", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT c.id, c.usuario_id, u.nombre as usuario_nombre, u.correo as usuario_correo, c.plan, c.monto, c.fecha_compra
+      FROM compras c
+      LEFT JOIN usuarios u ON u.id = c.usuario_id
+      ORDER BY c.fecha_compra DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    console.error("admin/compras error:", err);
+    res.status(500).json({ error: "Error al obtener compras" });
+  }
+});
+
+// Obtener métricas
+app.get("/api/admin/metricas", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT id, tipo, valor, fecha FROM metricas ORDER BY fecha DESC LIMIT 500");
+    res.json(rows);
+  } catch (err) {
+    console.error("admin/metricas error:", err);
+    res.status(500).json({ error: "Error al obtener metricas" });
+  }
+});
+
 
 // ---------- SERVIR ARCHIVOS ESTÁTICOS (FRONT) ----------
 app.use(express.static(path.join(__dirname, ".."))); // ajusta según estructura: index.html debe estar una carpeta arriba
