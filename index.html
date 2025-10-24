@@ -44,16 +44,22 @@
           <a href="#contacto" class="nav-link">Contacto</a>
         </nav>
 
-        <!-- Acciones: iniciar sesión destacado y crear cuenta -->
-        <button id="btnOpenLogin" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M15 3H6a2 2 0 0 0-2 2v14" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10 17l5-5-5-5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-          Iniciar sesión
-        </button>
+        <!-- Contenedor para auth buttons y para insertar el box de usuario -->
+        <div class="d-flex align-items-center gap-3" id="headerAuthActions">
+          <!-- Acciones: iniciar sesión destacado y crear cuenta -->
+          <button id="btnOpenLogin" class="btn btn-dark btn-sm d-flex align-items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M15 3H6a2 2 0 0 0-2 2v14" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path><path d="M10 17l5-5-5-5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            Iniciar sesión
+          </button>
 
-        <button id="btnOpenRegister" class="btn btn-primary btn-sm ms-2">Crear cuenta</button>
+          <button id="btnOpenRegister" class="btn btn-primary btn-sm ms-2">Crear cuenta</button>
 
-        <!-- mobile toggle -->
-        <button class="btn btn-link d-md-none" id="mobileMenuBtn" aria-label="Abrir menú">☰</button>
+          <!-- Aquí el JS insertará el box con el nombre y logout -->
+          <div id="userContainer"></div>
+
+          <!-- mobile toggle -->
+          <button class="btn btn-link d-md-none" id="mobileMenuBtn" aria-label="Abrir menú">☰</button>
+        </div>
       </div>
     </div>
 

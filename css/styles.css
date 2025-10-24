@@ -191,3 +191,45 @@ body{
 h6, .text-white-50 {
   color: rgba(255,255,255,0.8) !important;
 }
+
+/* ---------- USER BOX (header) ---------- */
+#headerUserBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 12px;
+}
+
+/* caja visible (texto oscuro sobre header blanco) */
+#headerUserBox .small,
+#headerUserBox strong {
+  color: #0b1720; /* color oscuro legible */
+}
+
+/* botón de cerrar sesión estilo discreto */
+#headerUserBox #btnLogout {
+  background: transparent;
+  color: #0b1720;
+  border: 1px solid rgba(11,23,32,0.08);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  transition: background .15s ease, color .15s ease;
+}
+
+#headerUserBox #btnLogout:hover {
+  background: #0b1720;
+  color: #fff;
+}
+
+/* si tu header tiene fondo oscuro en algunas secciones, este ajuste usa fondo semitransparente */
+.header-user-pill {
+  background: rgba(255,255,255,0.9);
+  padding: 6px 10px;
+  border-radius: 12px;
+}
+
+/* Asegurar que en pantallas pequeñas no tape elementos */
+@media (max-width: 767px) {
+  #headerUserBox { display: none; } /* opcional: esconder en móviles si no hay espacio */
+}

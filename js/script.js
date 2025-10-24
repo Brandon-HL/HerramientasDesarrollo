@@ -6,13 +6,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const msg = document.getElementById("msg");
   const tableBody = document.querySelector("#tableInscripciones tbody");
 
-  // auth elements (existen en tu HTML)
+  // auth elements
   const formRegister = document.getElementById("formRegister");
   const formLogin = document.getElementById("formLogin");
   const btnOpenLogin = document.getElementById("btnOpenLogin");
   const btnOpenRegister = document.getElementById("btnOpenRegister");
 
-  // links inside modals
+  // modal internal links
   const openForgot = document.getElementById("openForgot");
   const openRegisterFromLogin = document.getElementById("openRegisterFromLogin");
 
@@ -42,7 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .replaceAll("'", "&#039;");
   }
 
-  // token helpers
   function getToken() { return localStorage.getItem("token"); }
   function setToken(token) { if (token) localStorage.setItem("token", token); else localStorage.removeItem("token"); }
   function authHeaders() {
@@ -52,10 +51,10 @@ document.addEventListener("DOMContentLoaded", () => {
     return h;
   }
 
-  // ---------- Bootstrap modal helpers (abrir/cerrar) ----------
+  // ---------- Bootstrap modal helpers ----------
   function showModalById(id) {
     const el = document.getElementById(id);
-    if (!el) return;
+    if (!el) return null;
     const modal = new bootstrap.Modal(el);
     modal.show();
     return modal;
@@ -67,36 +66,57 @@ document.addEventListener("DOMContentLoaded", () => {
     if (inst) inst.hide();
   }
 
-  // ---------- Render user in header ----------
+  // ---------- Render user in header (robusto) ----------
   function renderUserInHeader(user) {
-    const headerActions = document.querySelector(".main-header .d-flex.align-items-center.gap-3");
-    if (!headerActions) return;
+    // Remove previous
+    const prev = document.getElementById("headerUserBox");
+    if (prev) prev.remove();
 
-    const existing = document.getElementById("headerUserBox");
-    if (existing) existing.remove();
-
+    // If no user, ensure auth buttons are visible
     if (!user) {
       if (btnOpenLogin) btnOpenLogin.classList.remove("d-none");
       if (btnOpenRegister) btnOpenRegister.classList.remove("d-none");
       return;
     }
 
+    // Hide original auth buttons
     if (btnOpenLogin) btnOpenLogin.classList.add("d-none");
     if (btnOpenRegister) btnOpenRegister.classList.add("d-none");
 
-    const div = document.createElement("div");
-    div.id = "headerUserBox";
-    div.className = "d-flex align-items-center gap-2";
-    div.innerHTML = `
-      <div class="small text-white-50">Hola, <strong>${escapeHtml(user.nombre)}</strong></div>
-      <button id="btnLogout" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
-    `;
-    headerActions.appendChild(div);
+    // Create user box
+    const box = document.createElement("div");
+    box.id = "headerUserBox";
+    box.className = "d-flex align-items-center gap-2 header-user-pill";
 
-    document.getElementById("btnLogout").addEventListener("click", () => {
-      setToken(null);
-      renderUserInHeader(null);
-    });
+    const displayName = user.nombre || user.name || user.email || "Usuario";
+    box.innerHTML = `
+      <div class="small text-muted">Hola, <strong>${escapeHtml(displayName)}</strong></div>
+      <button id="btnLogout" class="btn btn-sm">Cerrar sesión</button>
+    `;
+
+    // Insert into header actions container
+    const container = document.getElementById("headerAuthActions");
+    if (container) {
+      // Insert before the mobile menu button for consistent placement
+      const mobileBtn = container.querySelector("#mobileMenuBtn");
+      if (mobileBtn) container.insertBefore(box, mobileBtn);
+      else container.appendChild(box);
+    } else {
+      // fallback: insert into userContainer
+      const userContainer = document.getElementById("userContainer");
+      if (userContainer) userContainer.appendChild(box);
+      else document.body.appendChild(box);
+    }
+
+    // style the logout btn to match CSS
+    const logoutBtn = document.getElementById("btnLogout");
+    if (logoutBtn) {
+      logoutBtn.classList.add("logout-btn");
+      logoutBtn.addEventListener("click", () => {
+        setToken(null);
+        renderUserInHeader(null);
+      });
+    }
   }
 
   // ---------- Inscripciones & Graficos ----------
@@ -124,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const insData = await insResp.json();
       const home = await homeResp.json();
 
-      // Chart Inscripciones
+      // Chart Inscripciones (line)
       const ctx = document.getElementById("chartInscripciones").getContext("2d");
       if (chartInscripciones) chartInscripciones.destroy();
       chartInscripciones = new Chart(ctx, {
@@ -151,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
         options: { responsive: true }
       });
 
-      // actualizar tarjetas
+      // actualizar tarjetas del dashboard (por posición)
       try {
         const statValues = document.querySelectorAll(".stat-card .stat-value");
         if (statValues.length >= 4) {
@@ -160,45 +180,46 @@ document.addEventListener("DOMContentLoaded", () => {
           statValues[2].textContent = home.paises || 0;
           statValues[3].textContent = home.satisfaccion || "98%";
         }
-      } catch(e){ /* ignore */ }
-
+      } catch (e) { /* ignore */ }
     } catch (err) {
       console.error("Error graficos:", err);
     }
   }
 
-  // ---------- Formulario inscripcion ----------
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    msg.textContent = "";
-    const nombre = document.getElementById("nombre").value.trim();
-    const correo = document.getElementById("correo").value.trim();
-    const telefono = document.getElementById("telefono").value.trim();
-    const mensaje = document.getElementById("mensaje").value.trim();
+  // ---------- Form inscripcion ----------
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      setLoading(true);
+      msg.textContent = "";
+      const nombre = document.getElementById("nombre").value.trim();
+      const correo = document.getElementById("correo").value.trim();
+      const telefono = document.getElementById("telefono").value.trim();
+      const mensaje = document.getElementById("mensaje").value.trim();
 
-    try {
-      const res = await fetch("/api/inscripciones", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, correo, telefono, mensaje })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error");
-      msg.className = "mt-3 text-center fw-semibold text-success";
-      msg.textContent = "¡Solicitud enviada! Nos pondremos en contacto.";
-      form.reset();
-      await fetchInscripciones();
-      await fetchGraficos();
-    } catch (err) {
-      console.error(err);
-      msg.className = "mt-3 text-center fw-semibold text-danger";
-      msg.textContent = "Error al enviar. Intenta nuevamente.";
-    } finally {
-      setLoading(false);
-      setTimeout(()=> msg.textContent = "", 5000);
-    }
-  });
+      try {
+        const res = await fetch("/api/inscripciones", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nombre, correo, telefono, mensaje })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Error");
+        msg.className = "mt-3 text-center fw-semibold text-success";
+        msg.textContent = "¡Solicitud enviada! Nos pondremos en contacto.";
+        form.reset();
+        await fetchInscripciones();
+        await fetchGraficos();
+      } catch (err) {
+        console.error(err);
+        msg.className = "mt-3 text-center fw-semibold text-danger";
+        msg.textContent = "Error al enviar. Intenta nuevamente.";
+      } finally {
+        setLoading(false);
+        setTimeout(()=> msg.textContent = "", 5000);
+      }
+    });
+  }
 
   // ---------- AUTH: Register ----------
   if (formRegister) {
@@ -218,12 +239,21 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Error al registrar");
 
-        setToken(data.token);
-        renderUserInHeader(data.user);
+        // store token if provided
+        if (data.token) setToken(data.token);
 
-        // cerrar modal robusto
+        // get user info (either from response or /api/me)
+        let user = data.user || null;
+        if (!user && getToken()) {
+          const meRes = await fetch("/api/me", { headers: authHeaders() });
+          if (meRes.ok) {
+            const meData = await meRes.json();
+            user = meData.user || null;
+          }
+        }
+        renderUserInHeader(user || { nombre });
+
         hideModalById("modalRegister");
-
         formRegister.reset();
       } catch (err) {
         console.error("register:", err);
@@ -248,8 +278,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Error al iniciar sesión");
 
-        setToken(data.token);
-        renderUserInHeader(data.user);
+        if (data.token) setToken(data.token);
+
+        let user = data.user || null;
+        if (!user && getToken()) {
+          const meRes = await fetch("/api/me", { headers: authHeaders() });
+          if (meRes.ok) {
+            const meData = await meRes.json();
+            user = meData.user || null;
+          }
+        }
+        renderUserInHeader(user || { nombre: correo });
 
         hideModalById("modalLogin");
         formLogin.reset();
@@ -260,38 +299,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---------- Event listeners para abrir modales (soluciona "no pasa nada" al hacer clic) ----------
-  if (btnOpenLogin) {
-    btnOpenLogin.addEventListener("click", (e) => {
-      e.preventDefault();
-      showModalById("modalLogin");
-    });
-  }
-  if (btnOpenRegister) {
-    btnOpenRegister.addEventListener("click", (e) => {
-      e.preventDefault();
-      showModalById("modalRegister");
-    });
-  }
+  // ---------- Event listeners para abrir modales ----------
+  if (btnOpenLogin) btnOpenLogin.addEventListener("click", (e) => { e.preventDefault(); showModalById("modalLogin"); });
+  if (btnOpenRegister) btnOpenRegister.addEventListener("click", (e) => { e.preventDefault(); showModalById("modalRegister"); });
+  if (openForgot) openForgot.addEventListener("click", (e) => { e.preventDefault(); hideModalById("modalLogin"); showModalById("modalForgot"); });
+  if (openRegisterFromLogin) openRegisterFromLogin.addEventListener("click", (e) => { e.preventDefault(); hideModalById("modalLogin"); showModalById("modalRegister"); });
 
-  // abrir modal "olvidaste" desde login
-  if (openForgot) {
-    openForgot.addEventListener("click", (e) => {
-      e.preventDefault();
-      hideModalById("modalLogin");
-      showModalById("modalForgot");
-    });
-  }
-  // abrir registro desde login modal
-  if (openRegisterFromLogin) {
-    openRegisterFromLogin.addEventListener("click", (e) => {
-      e.preventDefault();
-      hideModalById("modalLogin");
-      showModalById("modalRegister");
-    });
-  }
-
-  // ---------- Restaurar sesión ----------
+  // ---------- Restaurar sesión al cargar ----------
   async function tryRestoreSession() {
     const token = getToken();
     if (!token) {
@@ -310,11 +324,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // inicializar
+  // ---------- Inicialización ----------
   fetchInscripciones();
   fetchGraficos();
   tryRestoreSession();
 
   // export para debug
-  window.__app = { fetchInscripciones, fetchGraficos, tryRestoreSession };
+  window.__app = { fetchInscripciones, fetchGraficos, tryRestoreSession, renderUserInHeader };
 });
